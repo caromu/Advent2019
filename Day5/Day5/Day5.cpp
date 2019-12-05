@@ -28,7 +28,7 @@ int getParam(int* program, int ip, bool immMode)
         return program[program[ip]];
 }
 
-bool getNextParamMode(int &paramModes)
+bool popParamMode(int &paramModes)
 {
     int nextMode = paramModes % 2;
     paramModes = paramModes / 10;
@@ -44,16 +44,16 @@ void executeOp(int* program, int& ip)
     {
     case 1:
     {
-        int a = getParam(program, ip++, getNextParamMode(paramModes));
-        int b = getParam(program, ip++, getNextParamMode(paramModes));
+        int a = getParam(program, ip++, popParamMode(paramModes));
+        int b = getParam(program, ip++, popParamMode(paramModes));
         int res = getParam(program, ip++, true);
         program[res] = a + b;
         return;
     }
     case 2:
     {
-        int a = getParam(program, ip++, getNextParamMode(paramModes));
-        int b = getParam(program, ip++, getNextParamMode(paramModes));
+        int a = getParam(program, ip++, popParamMode(paramModes));
+        int b = getParam(program, ip++, popParamMode(paramModes));
         int res = getParam(program, ip++, true);
         program[res] = a * b;
         return;
@@ -66,38 +66,38 @@ void executeOp(int* program, int& ip)
     }
     case 4:
     {
-        int a = getParam(program, ip++, getNextParamMode(paramModes));
+        int a = getParam(program, ip++, popParamMode(paramModes));
         writeOutput(a);
         return;
     }
     case 5:
     {
-        int cond = getParam(program, ip++, getNextParamMode(paramModes));
-        int loc = getParam(program, ip++, getNextParamMode(paramModes));
+        int cond = getParam(program, ip++, popParamMode(paramModes));
+        int loc = getParam(program, ip++, popParamMode(paramModes));
         if (cond != 0)
             ip = loc;
         return;
     }
     case 6:
     {
-        int cond = getParam(program, ip++, getNextParamMode(paramModes));
-        int loc = getParam(program, ip++, getNextParamMode(paramModes));
+        int cond = getParam(program, ip++, popParamMode(paramModes));
+        int loc = getParam(program, ip++, popParamMode(paramModes));
         if (cond == 0)
             ip = loc;
         return;
     }
     case 7:
     {
-        int a = getParam(program, ip++, getNextParamMode(paramModes));
-        int b = getParam(program, ip++, getNextParamMode(paramModes));
+        int a = getParam(program, ip++, popParamMode(paramModes));
+        int b = getParam(program, ip++, popParamMode(paramModes));
         int res = getParam(program, ip++, true);
         program[res] = (a < b) ? 1 : 0;
         return;
     }
     case 8:
     {
-        int a = getParam(program, ip++, getNextParamMode(paramModes));
-        int b = getParam(program, ip++, getNextParamMode(paramModes));
+        int a = getParam(program, ip++, popParamMode(paramModes));
+        int b = getParam(program, ip++, popParamMode(paramModes));
         int res = getParam(program, ip++, true);
         program[res] = (a == b) ? 1 : 0;
         return;
