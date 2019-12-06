@@ -35,11 +35,12 @@ bool popParamMode(int &paramModes)
     return nextMode == 1;
 }
 
-void executeOp(int* program, int& ip)
+bool executeOp(int* program, int& ip)
 {
     int opCode = program[ip++];
     int op = opCode % 100;
     int paramModes = opCode / 100;
+
     switch (op)
     {
     case 1:
@@ -48,7 +49,7 @@ void executeOp(int* program, int& ip)
         int b = getParam(program, ip++, popParamMode(paramModes));
         int res = getParam(program, ip++, true);
         program[res] = a + b;
-        return;
+        break;
     }
     case 2:
     {
@@ -56,19 +57,19 @@ void executeOp(int* program, int& ip)
         int b = getParam(program, ip++, popParamMode(paramModes));
         int res = getParam(program, ip++, true);
         program[res] = a * b;
-        return;
+        break;
     }
     case 3:
     {
         int res = getParam(program, ip++, true);
         program[res] = getInput();
-        return;
+        break;
     }
     case 4:
     {
         int a = getParam(program, ip++, popParamMode(paramModes));
         writeOutput(a);
-        return;
+        break;
     }
     case 5:
     {
@@ -76,7 +77,7 @@ void executeOp(int* program, int& ip)
         int loc = getParam(program, ip++, popParamMode(paramModes));
         if (cond != 0)
             ip = loc;
-        return;
+        break;
     }
     case 6:
     {
@@ -84,7 +85,7 @@ void executeOp(int* program, int& ip)
         int loc = getParam(program, ip++, popParamMode(paramModes));
         if (cond == 0)
             ip = loc;
-        return;
+        break;
     }
     case 7:
     {
@@ -92,7 +93,7 @@ void executeOp(int* program, int& ip)
         int b = getParam(program, ip++, popParamMode(paramModes));
         int res = getParam(program, ip++, true);
         program[res] = (a < b) ? 1 : 0;
-        return;
+        break;
     }
     case 8:
     {
@@ -100,11 +101,17 @@ void executeOp(int* program, int& ip)
         int b = getParam(program, ip++, popParamMode(paramModes));
         int res = getParam(program, ip++, true);
         program[res] = (a == b) ? 1 : 0;
-        return;
+        break;
+    }
+    case 99:
+    {
+        return false;
     }
     default:
         throw "Invalid OpCode";
     }
+    
+    return true;
 }
 
 void runProgram()
@@ -114,10 +121,7 @@ void runProgram()
 
     int ip = 0;
 
-    while (program[ip] != 99)
-    {
-        executeOp(program, ip);
-    }
+    while (executeOp(program, ip)) {}
 }
 
 
