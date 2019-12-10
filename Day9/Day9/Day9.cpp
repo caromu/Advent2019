@@ -11,7 +11,5 @@ const long long int programTemplate[] = { 1102,34463338,34463338,63,1007,63,3446
 
 int main()
 {
-    StdIOHandler iohandler;
-    Program<StdIOHandler> *program = new Program<StdIOHandler>(programTemplate, sizeof(programTemplate), new StdIOHandler());
-    program->Run();
+    (new Program<StdIOHandler>(programTemplate, sizeof(programTemplate), new StdIOHandler()))->Run();
 }
