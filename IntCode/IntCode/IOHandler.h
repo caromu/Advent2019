@@ -9,21 +9,21 @@ using namespace std;
 namespace IntCode {
     class BaseIOHandler {
     public:
-        virtual int readInput() { return 0; };
-        virtual RUN_STATE writeOutput(int output) { return RUN_STATE::CONTINUE; };
+        virtual long long int readInput() { return 0; };
+        virtual RUN_STATE writeOutput(long long int output) { return RUN_STATE::CONTINUE; };
     };
 
     class StdIOHandler :
         protected BaseIOHandler
     {
     public:
-        int readInput() override {
-            int input;
+        long long int readInput() override {
+            long long int input;
             cin >> input;
             return input;
         };
 
-        RUN_STATE writeOutput(int output) override {
+        RUN_STATE writeOutput(long long int output) override {
             cout << output;
             return RUN_STATE::CONTINUE;
         };
@@ -33,23 +33,23 @@ namespace IntCode {
         protected BaseIOHandler
     {
     public:
-        queue<int> *inputs;
-        queue<int>* outputs;
+        queue<long long int> *inputs;
+        queue<long long int>* outputs;
 
-        QueueIOHandler(queue<int>* inputs, queue<int>* outputs) {
+        QueueIOHandler(queue<long long int>* inputs, queue<long long int>* outputs) {
             this->inputs = inputs;
             this->outputs = outputs;
         }
 
-        int readInput() override {
+        long long int readInput() override {
             if (inputs->size() == 0) return 0;
 
-            int input = inputs->front();
+            long long int input = inputs->front();
             inputs->pop();
             return input;
         };
 
-        RUN_STATE writeOutput(int output) override {
+        RUN_STATE writeOutput(long long int output) override {
             outputs->push(output);
             return RUN_STATE::PAUSE;
         };
