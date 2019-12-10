@@ -7,8 +7,7 @@ using namespace std;
 
 namespace IntCode {
     template <class IOHandler>
-    Program<IOHandler>::Program(int memInit[], IOHandler &ioHandler) {
-        this->_memory[sizeof(memInit)];
+    Program<IOHandler>::Program(const long long int memInit[], IOHandler& ioHandler) {
         memcpy_s(this->_memory, sizeof(this->_memory), memInit, sizeof(memInit));
         this->_ioHandler = ioHandler;
 
@@ -28,88 +27,99 @@ namespace IntCode {
     }
 
     template <class IOHandler>
-    int Program<IOHandler>::getParam(int* program, int ip, bool immMode)
+    long long int Program<IOHandler>::getParam(unsigned int ip, PARAM_MODE mode, bool outParam)
     {
-        if (immMode)
-            return program[ip];
-        else
-            return program[program[ip]];
+        switch (mode) {
+        case PARAM_MODE::IMMEDIATE:
+            return _memory[ip];
+        case PARAM_MODE::POSITION:
+            unsigned int addr = _memory[ip];
+            return outParam ? addr : _memory[addr];
+        case PARAM_MODE::RELATIVE:
+            unsigned int addr = _memory[ip] + _relBase;
+            return outParam ? addr : _memory[addr];
+        }
     }
 
     template <class IOHandler>
-    bool Program<IOHandler>::popParamMode(int& paramModes)
+    PARAM_MODE Program<IOHandler>::popParamMode(long long int& paramModes)
     {
-        int nextMode = paramModes % 2;
+        int nextMode = paramModes % 10;
         paramModes = paramModes / 10;
-        return nextMode == 1;
+        return (PARAM_MODE)nextMode;
     }
 
     template <class IOHandler>
     RUN_STATE Program<IOHandler>::executeOp() {
-        int opCode = _memory[_ip++];
-        int op = opCode % 100;
-        int paramModes = opCode / 100;
+        long long int opCode = _memory[_ip++];
+        long long int op = opCode % 100;
+        long long int paramModes = opCode / 100;
 
         switch (op)
         {
         case 1:
         {
-            int a = getParam(_memory, _ip++, popParamMode(paramModes));
-            int b = getParam(_memory, _ip++, popParamMode(paramModes));
-            int res = getParam(_memory, _ip++, true);
+            int a = getParam(_ip++, popParamMode(paramModes));
+            int b = getParam(_ip++, popParamMode(paramModes));
+            int res = getParam(_ip++, popParamMode, true);
             _memory[res] = a + b;
             break;
         }
         case 2:
         {
-            int a = getParam(_memory, _ip++, popParamMode(paramModes));
-            int b = getParam(_memory, _ip++, popParamMode(paramModes));
-            int res = getParam(_memory, _ip++, true);
+            int a = getParam(_ip++, popParamMode(paramModes));
+            int b = getParam(_ip++, popParamMode(paramModes));
+            int res = getParam(_ip++, popParamMode(paramModes), true);
             _memory[res] = a * b;
             break;
         }
         case 3:
         {
-            int res = getParam(_memory, _ip++, true);
+            int res = getParam(_ip++, popParamMode(paramModes), true);
             _memory[res] = _ioHandler.readInput();
             break;
         }
         case 4:
         {
-            int a = getParam(_memory, _ip++, popParamMode(paramModes));
+            int a = getParam(_ip++, popParamMode(paramModes));
             return _ioHandler.writeOutput(a);
         }
         case 5:
         {
-            int cond = getParam(_memory, _ip++, popParamMode(paramModes));
-            int loc = getParam(_memory, _ip++, popParamMode(paramModes));
+            int cond = getParam(_ip++, popParamMode(paramModes));
+            int loc = getParam(_ip++, popParamMode(paramModes));
             if (cond != 0)
                 _ip = loc;
             break;
         }
         case 6:
         {
-            int cond = getParam(_memory, _ip++, popParamMode(paramModes));
-            int loc = getParam(_memory, _ip++, popParamMode(paramModes));
+            int cond = getParam(_ip++, popParamMode(paramModes));
+            int loc = getParam(_ip++, popParamMode(paramModes));
             if (cond == 0)
                 _ip = loc;
             break;
         }
         case 7:
         {
-            int a = getParam(_memory, _ip++, popParamMode(paramModes));
-            int b = getParam(_memory, _ip++, popParamMode(paramModes));
-            int res = getParam(_memory, _ip++, true);
+            int a = getParam(_ip++, popParamMode(paramModes));
+            int b = getParam(_ip++, popParamMode(paramModes));
+            int res = getParam(_ip++, popParamMode(paramModes), true);
             _memory[res] = (a < b) ? 1 : 0;
             break;
         }
         case 8:
         {
-            int a = getParam(_memory, _ip++, popParamMode(paramModes));
-            int b = getParam(_memory, _ip++, popParamMode(paramModes));
-            int res = getParam(_memory, _ip++, true);
+            int a = getParam(_ip++, popParamMode(paramModes));
+            int b = getParam(_ip++, popParamMode(paramModes));
+            int res = getParam(_ip++, popParamMode(paramModes), true);
             _memory[res] = (a == b) ? 1 : 0;
             break;
+        }
+        case 9:
+        {
+            int offset = getParam(_ip++, popParamMode(paramModes));
+            _relBase += offset;
         }
         case 99:
         {

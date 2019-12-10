@@ -9,8 +9,8 @@ using namespace std;
 namespace IntCode {
     class BaseIOHandler {
     public:
-        virtual int readInput() {};
-        virtual RUN_STATE writeOutput(int output) {};
+        virtual int readInput() { return 0; };
+        virtual RUN_STATE writeOutput(int output) { return RUN_STATE::CONTINUE; };
     };
 
     class StdIOHandler :
